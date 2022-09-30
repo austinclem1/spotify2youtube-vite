@@ -1,10 +1,12 @@
-import { useRedirect } from "react-router-dom";
+import { redirect } from "react-router-dom";
 import Spinner from "react-bootstrap/Spinner";
-import { getSpotifyUserPlaylists, getSpotifyTokensFromCode } from "../helpers/spotify-helpers";
+import {
+  getSpotifyUserPlaylists,
+  getSpotifyTokensFromCode,
+} from "../helpers/spotify-helpers";
 
 export async function loader() {
   const params = new URLSearchParams(window.location.search);
-  const redirect = useRedirect();
 
   const returnedState = params.get("spotifyState");
   if (returnedState) {

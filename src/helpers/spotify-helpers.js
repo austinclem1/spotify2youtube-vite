@@ -1,14 +1,12 @@
-import { spotifyClientId } from "../constants";
+import constants from "../constants";
 
 export async function getSpotifyTokensFromCode(
   code,
   redirectURI,
   codeVerifier
 ) {
-  const spotifyTokenURL = "https://accounts.spotify.com/api/token";
-
   const query = new URLSearchParams({
-    client_id: spotifyClientId,
+    client_id: constants.spotifyClientId,
     grant_type: "authorization_code",
     code: code,
     redirect_uri: redirectURI,
@@ -24,14 +22,16 @@ export async function getSpotifyTokensFromCode(
     body: query.toString(),
   };
 
-  const response = await fetch(spotifyTokenURL, fetchOptions).then((res) => {
-    if (!res.ok) {
-      const error = new Error();
-      throw error;
-    } else {
-      return res.json();
+  const response = await fetch(constants.spotifyTokenURL, fetchOptions).then(
+    (res) => {
+      if (!res.ok) {
+        const error = new Error();
+        throw error;
+      } else {
+        return res.json();
+      }
     }
-  });
+  );
 
   let accessToken = response.access_token;
   let expiresIn = response.expires_in;
@@ -92,13 +92,10 @@ export async function getSpotifyAccessToken() {
 
 // TODO: can we use then instead of async await here
 async function refreshSpotifyTokens(refreshToken) {
-  console.log("refreshing tokens");
-  const spotifyTokenURL = "https://accounts.spotify.com/api/token";
-
   const query = new URLSearchParams({
     grant_type: "refresh_token",
     refresh_token: refreshToken,
-    client_id: process.env.spotifyClientId,
+    client_id: constants.spotifyClientId,
   });
 
   const headers = new Headers({
@@ -111,14 +108,16 @@ async function refreshSpotifyTokens(refreshToken) {
   };
 
   // TODO: Find better way to handle error here
-  const response = await fetch(spotifyTokenURL, fetchOptions).then((res) => {
-    if (!res.ok) {
-      const error = new Error();
-      throw error;
-    } else {
-      return res.json();
+  const response = await fetch(constants.spotifyTokenURL, fetchOptions).then(
+    (res) => {
+      if (!res.ok) {
+        const error = new Error();
+        throw error;
+      } else {
+        return res.json();
+      }
     }
-  });
+  );
 
   let accessToken = response.access_token;
   let expiresIn = response.expires_in;
@@ -183,10 +182,7 @@ function stringToBase64URL(input) {
 
 export async function getSpotifyUserPlaylists() {
   let accessToken = await getSpotifyAccessToken();
-  console.log("Fetching spotify user playlists");
-  const spotifyPlaylistsURL = new URL(
-    "https://api.spotify.com/v1/me/playlists"
-  );
+
   let spotifyFetchOptions = {
     method: "GET",
     headers: {
@@ -197,7 +193,7 @@ export async function getSpotifyUserPlaylists() {
   };
 
   let playlistResponse = await fetch(
-    spotifyPlaylistsURL.href,
+    constants.spotifyPlaylistsURL,
     spotifyFetchOptions
   ).then((res) => {
     if (!res.ok) {
@@ -399,3 +395,16 @@ export async function getSomePlaylistTracks(query) {
 
   return { tracks, nextPageOffset };
 }
+
+export async function checkSpotifyLoginStatus() {
+  const refreshToken = window.localStorage.getItem("spotifyRefreshToken");
+  if (refreshToken) {
+    const tokenExpiration = window.localStorage.getItem(
+      "spotifyAccessTokenExpiration"
+    );
+  }
+
+  return false;
+}
+
+export async function fetchWithCredentialsRetryOnce(fetchFunc) {}

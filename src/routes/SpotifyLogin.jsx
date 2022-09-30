@@ -6,7 +6,7 @@ import {
   generateRandomStateString,
   generateCodeVerifierAndChallenge,
 } from "../helpers/spotify-helpers";
-import { spotifyClientId } from "../constants";
+import constants from "../constants";
 
 function SpotifyLogin(props) {
   return (
@@ -34,7 +34,7 @@ async function userClickedLogin() {
   // user's private and followed playlists
   // On successful login we are redirected to spotify-playlists page
   const queryParams = new URLSearchParams({
-    client_id: spotifyClientId,
+    client_id: constants.spotifyClientId,
     response_type: "code",
     redirect_uri: "http://localhost:3000/spotify-landing",
     code_challenge_method: "S256",
