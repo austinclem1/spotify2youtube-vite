@@ -10,6 +10,7 @@ import SpotifyLogin from "./routes/SpotifyLogin";
 import SpotifyPlaylists, {
   loader as spotifyPlaylistsLoader,
 } from "./routes/SpotifyPlaylists";
+import Thing, { loader as thingLoader } from "./routes/Thing";
 
 const router = createBrowserRouter([
   {
@@ -31,10 +32,13 @@ const router = createBrowserRouter([
     element: <SpotifyPlaylists />,
     loader: spotifyPlaylistsLoader,
   },
+  {
+    path: "/thing",
+    element: <Thing />,
+    loader: thingLoader,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <RouterProvider router={router} />
 );

@@ -17,6 +17,7 @@ import constants from "../constants";
 import {
   getSpotifyUserPlaylists,
   getSomePlaylistTracks,
+  useFetch,
 } from "../helpers/spotify-helpers";
 
 function TracksTable(props) {
@@ -49,20 +50,14 @@ function TracksTable(props) {
   );
 
   const arrayOfTrackArrays = data ? data.map((res) => res.tracks) : [];
-  const tracks = [].concat(...arrayOfTrackArrays);
-  const tableData = isSelected
-    ? tracks.map((track) => (
-        <tr>
-          <td>{track.name}</td>
-          <td>{track.artists}</td>
-        </tr>
-      ))
-    : tracks.slice(0, reducedTrackCount).map((track) => (
-        <tr>
-          <td>{track.name}</td>
-          <td>{track.artists}</td>
-        </tr>
-      ));
+  const tracksToShowCount = isSelected ? arrayOfTrackArrays.length : reducedTrackCount;
+  const tracks = arrayOfTrackArrays.slice(0, tracksToShowCount);
+  const tableData = tracks.map((track) => (
+    <tr key={`${track.name},${track.artists}`}>
+      <td>{track.name}</td>
+      <td>{track.artists}</td>
+    </tr>
+  ));
 
   const isLoadingInitialData = !data && !error;
   const isLoadingMore =
@@ -104,9 +99,16 @@ function TracksTable(props) {
   );
 }
 
-function PlaylistCard(props) {
+function PlaylistCard({
+  id,
+  name,
+  imageURL,
+  totalTracks,
+  tracksURL,
+  isSelected,
+  setSelected,
+}) {
   const cardRef = useRef(null);
-  const { playlist, index, isSelected, setSelectedPlaylistIndex } = props;
 
   const [justSelected, setJustSelected] = useState(false);
 
@@ -124,7 +126,7 @@ function PlaylistCard(props) {
 
   const selectPlaylist = () => {
     if (!isSelected) {
-      setSelectedPlaylistIndex(parseInt(index));
+      setSelected();
       setJustSelected(true);
     }
   };
@@ -141,10 +143,9 @@ function PlaylistCard(props) {
         bg={color}
         className="h-100"
         onClick={() => selectPlaylist()}
-        key={playlist.id}
       >
         <Card.Header className="text-center" as="h4">
-          {playlist.name}
+          {name}
         </Card.Header>
         <Card.Body>
           <Row className="align-middle">
@@ -152,20 +153,20 @@ function PlaylistCard(props) {
               xs={isSelected ? { offset: 4, span: 4 } : { offset: 3, span: 7 }}
               className="px-3 py-1"
             >
-              <Image src={playlist.image} thumbnail />
+              <Image src={imageURL} thumbnail />
             </Col>
             <Col xs={12} className="align-self-center">
               <Card.Text>
-                <p>{`${playlist.totalTracks} tracks`}</p>
-                <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-                  {isSelected && (
-                    <TracksTable
-                      playlistID={playlist.id}
-                      playlistLength={playlist.totalTracks}
-                      isSelected={true}
-                    />
-                  )}
-                </div>
+                {`${totalTracks} tracks`}
+              </Card.Text>
+              <Card.Text style={{ maxHeight: "500px", overflowY: "auto" }}>
+                {isSelected && (
+                  <TracksTable
+                    playlistID={id}
+                    playlistLength={totalTracks}
+                    isSelected={true}
+                  />
+                )}
               </Card.Text>
             </Col>
           </Row>
@@ -177,20 +178,34 @@ function PlaylistCard(props) {
 }
 
 export async function loader() {
-  return getSpotifyUserPlaylists();
+  return getSpotifyUserPlaylists(constants.spotifyPlaylistsURL)
+    .then(data => ({
+      playlists: data.items.map(playlist => ({
+        id: playlist.id,
+        name: playlist.name,
+        image: playlist.images[0] ? playlist.images[0].url : null,
+        totalTracks: playlist.tracks.total,
+        tracksURL: playlist.tracks.href,
+      })),
+    }))
+    .catch(err => ({
+      error: err,
+    }));
 }
 
 export default function SpotifyPlaylists() {
   const [selectedPlaylistIndex, _setSelectedPlaylistIndex] = useState(null);
-  const setSelectedPlaylistIndex = (index) => {
+  const playlistFetchResults = useFetch(constants.spotifyPlaylistsURL);
+
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState(null);
+  // const setSelectedPlaylistIndex = (index) => {
     // if (id === selectedPlaylist) {
     // 	_setSelectedPlaylist(null)
     // } else {
     // 	_setSelectedPlaylist(id)
     // }
-    _setSelectedPlaylistIndex(index);
-  };
-  const playlists = useLoaderData();
+    // _setSelectedPlaylistIndex(index);
+  // };
   // const { data: playlists } = useSWR(
   //   "spotifyUserPlaylists",
   //   getSpotifyUserPlaylists,
@@ -201,26 +216,39 @@ export default function SpotifyPlaylists() {
   //     errorRetryCount: 3,
   //   }
   // );
+
+  let playlistCards;
+  if (playlistFetchResults.isLoading) {
+    playlistCards = [<Spinner animation="border" />];
+  } else if (playlistFetchResults.error) {
+    playlistCards = [<div>Failed to fetch playlists, error: {playlistFetchResults.error.message}</div>];
+  } else {
+    playlistCards = playlistFetchResults.data.items.map(playlist => (
+      <PlaylistCard
+        key={playlist.id}
+        id={playlist.id}
+        name={playlist.name}
+        imageURL={playlist.images[0]?.url}
+        totalTracks={playlist.tracks.total}
+        tracksURL={playlist.tracks.href}
+        isSelected={selectedPlaylistId === playlist.id}
+        setSelected={() => setSelectedPlaylistId(playlist.id)}
+      />
+    ));
+  }
+
+
   return (
     <Container className="text-center p-5">
       <h1>Choose a Playlist to Convert</h1>
       <Row className="m-xs-1 m-sm-2 m-md-3 m-lg-4 m-xl-5">
-        {playlists &&
-          playlists.map((playlist, index) => (
-            <PlaylistCard
-              playlist={playlist}
-              index={index}
-              order={index + 1}
-              isSelected={index === selectedPlaylistIndex}
-              setSelectedPlaylistIndex={setSelectedPlaylistIndex}
-            />
-          ))}
+        {playlistCards}
       </Row>
       <Navbar bg="dark" fixed="bottom" className="w-100 justify-content-center">
         <Link
-          href={`/youtube-results/${playlists?.[selectedPlaylistIndex]?.id}?totalTracks=${playlists?.[selectedPlaylistIndex]?.totalTracks}`}
+          href={`/youtube-results/${selectedPlaylistId}`}
         >
-          <Button disabled={selectedPlaylistIndex === null}>Convert</Button>
+          <Button disabled={selectedPlaylistId === null}>Convert</Button>
         </Link>
       </Navbar>
     </Container>
