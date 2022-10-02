@@ -23,31 +23,30 @@ import {
 export default function SpotifyPlaylists() {
   const playlistFetchParams = new URLSearchParams({
     fields: "items(id,name,images,tracks(total,href))",
-    limit: 4,
   });
   const playlistFetchResults = useFetch(`${constants.spotifyApiURL}/me/playlists?${playlistFetchParams.toString()}`);
-  // const playlistFetchResults = useFetch(constants.spotifyPlaylistsURL);
-  // const playlistFetchResults = useFetch("aoeu");
 
   const [selectedPlaylistId, setSelectedPlaylistId] = useState(null);
 
   let playlistCards;
   if (playlistFetchResults.isLoading) {
-    playlistCards = [<Spinner animation="border" />];
+    playlistCards = <Spinner animation="border" />;
   } else if (playlistFetchResults.error) {
-    playlistCards = [<div>Failed to fetch playlists, error: {playlistFetchResults.error.message}</div>];
+    playlistCards = <div>Failed to fetch playlists, error: {playlistFetchResults.error.message}</div>;
   } else {
-    playlistCards = playlistFetchResults.data.items.map(playlist => (
-      <PlaylistCard
-        key={playlist.id}
-        name={playlist.name}
-        imageURL={playlist.images[0]?.url}
-        totalTracks={playlist.tracks.total}
-        tracksURL={playlist.tracks.href}
-        isSelected={selectedPlaylistId === playlist.id}
-        setSelected={() => setSelectedPlaylistId(playlist.id)}
-      />
-    ));
+    playlistCards = playlistFetchResults.data.items
+      .filter(playlist => playlist.tracks.total > 0)
+      .map(playlist => (
+        <PlaylistCard
+          key={playlist.id}
+          name={playlist.name}
+          imageURL={playlist.images[0]?.url}
+          totalTracks={playlist.tracks.total}
+          tracksURL={playlist.tracks.href}
+          isSelected={selectedPlaylistId === playlist.id}
+          setSelected={() => setSelectedPlaylistId(playlist.id)}
+        />
+      ));
   }
 
 

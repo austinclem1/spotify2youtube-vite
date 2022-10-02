@@ -43,6 +43,7 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
 
   useEffect(() => {
     const params = new URLSearchParams({
+      limit: 20,
       market: "from_token",
       fields: "items(track(name,artists(name))),next",
     });
@@ -84,13 +85,11 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
   //   console.log(tableRows);
   // }
   switch (state.status) {
-    case 'loading':
-      tableRows = [<Spinner animation="border" />];
-      break;
     case 'error':
-      tableRows = [<div>{`Failed to fetch tracks, error: ${state.errorMessage}`}</div>];
+      tableRows = <div>{`Failed to fetch tracks, error: ${state.errorMessage}`}</div>;
       break;
     case 'loaded':
+    case 'loading':
       tableRows = state.tracks.map(track => (
         <tr key={`${track.name},${track.artists}`}>
           <td>{track.name}</td>
@@ -98,6 +97,19 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
         </tr>
       ));
       break;
+  }
+
+  let loadMoreButton;
+  if (state.status !== 'error') {
+    loadMoreButton = (
+      <Button
+        variant="success"
+        onClick={loadMoreTracks}
+        disabled={state.status === 'loading'}
+      >
+        Load More
+      </Button>
+    );
   }
 
   async function loadMoreTracks() {
@@ -120,24 +132,26 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
   }
 
   return (
-    <Table striped bordered hover className="font-weight-bold">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Artist(s)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {tableRows}
-        {!isSelected && tracksNotShown > 0 && (
+    <>
+      <Table striped bordered hover className="font-weight-bold">
+        <thead>
           <tr>
-            <td colSpan={2}>{`${tracksNotShown} more...`}</td>
+            <th>Title</th>
+            <th>Artist(s)</th>
           </tr>
-        )}
-        {state.status === 'loaded' && state.tracks.length < playlistLength && state.nextURL !== null (
-          <Button variant="light" onClick={loadMoreTracks}>Load More</Button>
-        )}
-      </tbody>
-    </Table>
+        </thead>
+        <tbody>
+          {tableRows}
+          {!isSelected && tracksNotShown > 0 && (
+            <tr>
+              <td colSpan={2}>{`${tracksNotShown} more...`}</td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
+      {state.nextURL !== null && 
+        loadMoreButton
+      }
+    </>
   );
 }

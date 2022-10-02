@@ -38,7 +38,14 @@ export default function PlaylistCard({
     }
   };
 
-  const color = isSelected ? "info" : "light";
+  let headerStyle;
+  if (isSelected) {
+    headerStyle = {
+      fontWeight: 'bold',
+      backgroundColor: 'LightSkyBlue',
+    };
+  }
+
   return (
     <Col
       xs={{ span: 12 }}
@@ -47,11 +54,11 @@ export default function PlaylistCard({
     >
       <Card
         ref={cardRef}
-        bg={color}
+        bg="light"
         className="h-100"
         onClick={() => selectPlaylist()}
       >
-        <Card.Header className="text-center" as="h4">
+        <Card.Header className="text-center" as="h4" style={headerStyle}>
           {name}
         </Card.Header>
         <Card.Body>
@@ -66,7 +73,7 @@ export default function PlaylistCard({
               <Card.Text>
                 {`${totalTracks} tracks`}
               </Card.Text>
-              <Card.Text style={{ maxHeight: "500px", overflowY: "auto" }}>
+              <Col style={{ maxHeight: "500px", overflowY: "auto" }}>
                 {isSelected && (
                   <TracksTable
                     tracksURL={tracksURL}
@@ -74,7 +81,7 @@ export default function PlaylistCard({
                     isSelected={true}
                   />
                 )}
-              </Card.Text>
+              </Col>
             </Col>
           </Row>
           {!isSelected && <a className="stretched-link" role="button" />}

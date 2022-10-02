@@ -8,15 +8,58 @@ import Col from "react-bootstrap/Col"
 import Row from "react-bootstrap/Row"
 import Spinner from "react-bootstrap/Spinner"
 import Table from "react-bootstrap/Table"
-import { getSomePlaylistTracks } from "../helpers/spotify-helpers"
+import { fetchWithCredentialsRetryOnce, getSomePlaylistTracks,  } from "../helpers/spotify-helpers"
 import { getYoutubeSearchResults } from "../helpers/youtube-helpers"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 // import { useSWRInfinite } from "swr"
+
+import constants from "../constants";
 
 export default function YoutubeResults() {
   const query = new URLSearchParams(window.location.search);
-  console.log(query)
   const playlistID = query.get("playlistID");
+
+  const [playlistTracks, setPlaylistTracks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const initialPlaylistURLParams = new URLSearchParams({
+    limit: 50,
+    fields: 'items(track(name,artists))',
+  });
+  const initialPlaylistURL = `${constants.spotifyApiURL}/playlists/${playlistID}/tracks?${initialPlaylistURLParams.toString()}`;
+  const [playlistNextTracksURL, setPlaylistNextTracksURL] = useState(initialPlaylistURL);
+
+  useEffect(() => {
+    if (isLoading) {
+      let youtubeQueries = [];
+      let nextPageURL = `${constants.spotifyApiURL}/playlists/${playlistID}/tracks?${initialPlaylistURLParams.toString()}`;
+      while (nextPageURL) {
+        const data = fetchWithCredentialsRetryOnce(nextPageURL);
+        const newQueries = data.items.map(item => `${item.track.name} ${item.track.artists[0].name}`);
+        youtubeQueries = youtubeQueries.concat(newQueries);
+      }
+
+      for (query of youtubeQueries) {
+        const youtubeSearchParams = new URLSearchParams({
+          key: constants.youtubeApiKey,
+          part: "snippet",
+          maxResults: 1,
+          q: query,
+          type: "video",
+        });
+        const youtubeSearchURL = `https://www.googleapis.com/youtube/v3/search?${youtubeSearchParams.toString()}`;
+	const fetchOptions = {
+		method: "GET",
+		headers: {
+			"Accept": "application/json",
+		}
+	}
+        let data = await fetch(youtubeSearchURL, fetchOptions)
+          .then(res => res.json());
+      }
+    }
+  }, []);
+
   const totalTracks = query.get("totalTracks");
 
   const [playlistName, setPlaylistName] = useState()
