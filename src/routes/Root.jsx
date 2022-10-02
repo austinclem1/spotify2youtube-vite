@@ -3,13 +3,15 @@ import { redirect } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
 
-import { getSpotifyAccessToken } from "../helpers/spotify-helpers";
+import { fetchWithCredentialsRetryOnce } from "../helpers/spotify-helpers";
+
+import constants from "../constants";
 
 export async function loader() {
-  const accessToken = await getSpotifyAccessToken();
-  if (accessToken) {
+  try {
+    const userProfile = await fetchWithCredentialsRetryOnce(`${constants.spotifyApiURL}/me`);
     return redirect("/spotify-playlists");
-  } else {
+  } catch (err) {
     return redirect("/spotify-login");
   }
 }

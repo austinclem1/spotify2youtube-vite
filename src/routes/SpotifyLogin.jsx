@@ -8,14 +8,14 @@ import {
 } from "../helpers/spotify-helpers";
 import constants from "../constants";
 
-function SpotifyLogin(props) {
+export default function SpotifyLogin(props) {
   return (
     <Container className="text-center p-5">
       <Row className="justify-content-md-center">
         <h3>Log In to Spotify to Get Started</h3>
       </Row>
       <Row className="justify-content-md-center">
-        <img src="/Spotify_Logo_RGB_Green.png" width="300" />
+        <img src="../../public/Spotify_Logo_RGB_Green.png" width="300" />
       </Row>
       <Row className="justify-content-md-center">
         <Button onClick={async () => await userClickedLogin()}>Login</Button>
@@ -36,7 +36,7 @@ async function userClickedLogin() {
   const queryParams = new URLSearchParams({
     client_id: constants.spotifyClientId,
     response_type: "code",
-    redirect_uri: "http://localhost:3000/spotify-landing",
+    redirect_uri: `${window.location.origin}/spotify-landing`,
     code_challenge_method: "S256",
     code_challenge: codeChallenge,
     state,
@@ -46,5 +46,3 @@ async function userClickedLogin() {
     `https://accounts.spotify.com/authorize?${queryParams.toString()}`
   );
 }
-
-export default SpotifyLogin;

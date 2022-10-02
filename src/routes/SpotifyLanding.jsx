@@ -12,7 +12,7 @@ export async function loader() {
   if (returnedState) {
     const sentState = window.sessionStorage.getItem("state");
     if (returnedState !== sentState) {
-      return redirect("/");
+      return redirect("/spotify-login");
     }
   }
 
@@ -29,6 +29,8 @@ export async function loader() {
       return redirect("/spotify-playlists");
     }
   }
+
+  return redirect("/spotify-login");
 }
 
 export default function SpotifyLanding() {

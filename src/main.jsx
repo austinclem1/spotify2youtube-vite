@@ -7,10 +7,8 @@ import SpotifyLanding, {
   loader as spotifyLandingLoader,
 } from "./routes/SpotifyLanding";
 import SpotifyLogin from "./routes/SpotifyLogin";
-import SpotifyPlaylists, {
-  loader as spotifyPlaylistsLoader,
-} from "./routes/SpotifyPlaylists";
-import Thing, { loader as thingLoader } from "./routes/Thing";
+import SpotifyPlaylists from "./routes/SpotifyPlaylists";
+import YoutubeResults from "./routes/YoutubeResults";
 
 const router = createBrowserRouter([
   {
@@ -30,12 +28,10 @@ const router = createBrowserRouter([
   {
     path: "/spotify-playlists",
     element: <SpotifyPlaylists />,
-    loader: spotifyPlaylistsLoader,
   },
   {
-    path: "/thing",
-    element: <Thing />,
-    loader: thingLoader,
+    path: "/youtube-results",
+    element: <YoutubeResults />,
   },
 ]);
 
