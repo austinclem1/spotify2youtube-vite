@@ -8,6 +8,8 @@ import {
 } from "../helpers/spotify-helpers";
 import constants from "../constants";
 
+import spotifyLogo from "../../public/Spotify_Logo_RGB_Green.png";
+
 export default function SpotifyLogin(props) {
   return (
     <Container className="text-center p-5">
@@ -15,7 +17,7 @@ export default function SpotifyLogin(props) {
         <h3>Log In to Spotify to Get Started</h3>
       </Row>
       <Row className="justify-content-md-center">
-        <img src="../../public/Spotify_Logo_RGB_Green.png" width="300" />
+        <img src={spotifyLogo} width="300" />
       </Row>
       <Row className="justify-content-md-center">
         <Button onClick={async () => await userClickedLogin()}>Login</Button>
