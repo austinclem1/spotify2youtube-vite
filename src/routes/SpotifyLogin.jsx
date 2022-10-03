@@ -9,7 +9,7 @@ import {
 } from "../helpers/spotify-helpers";
 import constants from "../constants";
 
-import spotifyLogo from "../../public/Spotify_Logo_RGB_Green.png";
+import spotifyLogo from "../Spotify_Logo_RGB_Green.png";
 
 export default function SpotifyLogin(props) {
   return (
