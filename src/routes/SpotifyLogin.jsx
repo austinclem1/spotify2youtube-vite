@@ -1,6 +1,7 @@
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import {
   getSpotifyTokensFromCode,
   generateRandomStateString,
@@ -12,15 +13,24 @@ import spotifyLogo from "../../public/Spotify_Logo_RGB_Green.png";
 
 export default function SpotifyLogin(props) {
   return (
-    <Container className="text-center p-5">
-      <Row className="justify-content-md-center">
-        <h3>Log In to Spotify to Get Started</h3>
+    <Container
+      className="text-center p-5 align-content-center"
+      style={{ maxWidth: "65vw" }}
+    >
+      <Row>
+        <Col xs={{ span: 6, offset: 3 }}>
+          <h3>Log In to Spotify to Get Started</h3>
+        </Col>
       </Row>
-      <Row className="justify-content-md-center">
-        <img src={spotifyLogo} width="300" />
+      <Row>
+        <Col xs={{ span: 6, offset: 3 }}>
+          <img src={spotifyLogo} style={{ maxWidth: "100%" }} />
+        </Col>
       </Row>
-      <Row className="justify-content-md-center">
-        <Button onClick={async () => await userClickedLogin()}>Login</Button>
+      <Row>
+        <Col xs={{ span: 6, offset: 3 }}>
+          <Button onClick={async () => await userClickedLogin()}>Login</Button>
+        </Col>
       </Row>
     </Container>
   );
