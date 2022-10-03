@@ -9,6 +9,7 @@ import SpotifyLanding, {
 import SpotifyLogin from "./routes/SpotifyLogin";
 import SpotifyPlaylists from "./routes/SpotifyPlaylists";
 import YoutubeResults from "./routes/YoutubeResults";
+import CreateYoutubePlaylist from "./routes/CreateYoutubePlaylist";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: "/youtube-results",
     element: <YoutubeResults />,
+  },
+  {
+    path: "/create-youtube-playlist",
+    element: <CreateYoutubePlaylist />,
   },
 ]);
 
