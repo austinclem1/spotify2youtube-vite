@@ -1,19 +1,23 @@
-import Button from "react-bootstrap/Button"
-import Container from "react-bootstrap/Container"
-import Col from "react-bootstrap/Col"
-import Row from "react-bootstrap/Row"
-import Spinner from "react-bootstrap/Spinner"
+import Button from "react-bootstrap/Button";
+import Container from "react-bootstrap/Container";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
+import Spinner from "react-bootstrap/Spinner";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
 import constants from "../constants";
-
 
 export default function CreateYoutubePlaylist() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function recursiveAddVideosToPlaylist(videoIds, index, playlistId, accessToken) {
+    async function recursiveAddVideosToPlaylist(
+      videoIds,
+      index,
+      playlistId,
+      accessToken
+    ) {
       const params = new URLSearchParams({
         part: "snippet",
         key: constants.youtubeApiKey,
@@ -22,9 +26,9 @@ export default function CreateYoutubePlaylist() {
       const insertVideoFetchOptions = {
         method: "POST",
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + accessToken,
+          Authorization: "Bearer " + accessToken,
         },
         body: JSON.stringify({
           snippet: {
@@ -32,14 +36,21 @@ export default function CreateYoutubePlaylist() {
             resourceId: {
               kind: "youtube#video",
               videoId: videoIds[index],
-            }
-          }
-        })
+            },
+          },
+        }),
       };
       if (index >= videoIds.length - 1) {
         return fetch(insertVideoURL, insertVideoFetchOptions);
       } else {
-        return fetch(insertVideoURL, insertVideoFetchOptions).then(() => recursiveAddVideosToPlaylist(videoIds, index + 1, playlistId, accessToken));
+        return fetch(insertVideoURL, insertVideoFetchOptions).then(() =>
+          recursiveAddVideosToPlaylist(
+            videoIds,
+            index + 1,
+            playlistId,
+            accessToken
+          )
+        );
       }
     }
 
@@ -51,9 +62,9 @@ export default function CreateYoutubePlaylist() {
       const fetchOptions = {
         method: "POST",
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + accessToken,
+          Authorization: "Bearer " + accessToken,
         },
         body: JSON.stringify({
           snippet: {
@@ -67,12 +78,18 @@ export default function CreateYoutubePlaylist() {
       });
       const createPlaylistURL = `https://www.googleapis.com/youtube/v3/playlists?${params.toString()}`;
       fetch(createPlaylistURL, fetchOptions)
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           const newPlaylistID = data.id;
-          const videoIDs = JSON.parse(window.sessionStorage.getItem("newPlaylistVideoIDs"))
-          recursiveAddVideosToPlaylist(videoIDs, 0, newPlaylistID, accessToken)
-            .then(() => setIsLoading(false));
+          const videoIDs = JSON.parse(
+            window.sessionStorage.getItem("newPlaylistVideoIDs")
+          );
+          recursiveAddVideosToPlaylist(
+            videoIDs,
+            0,
+            newPlaylistID,
+            accessToken
+          ).then(() => setIsLoading(false));
           // const insertVideoURL = `https://youtube.googleapis.com/youtube/v3/playlistItems?${params.toString()}`;
           // const insertVideoPromises = videoIDs.map((videoID, index) => {
           //   const insertVideoFetchOptions = {
@@ -101,20 +118,20 @@ export default function CreateYoutubePlaylist() {
         });
     }
   }, []);
-  
-        let header;
-        if (isLoading) {
+
+  let header;
+  if (isLoading) {
     header = (
-        <>
-          <h3>Creating new YouTube playlist</h3>
-          <Spinner animation="border" />
-        </>
+      <>
+        <h3>Creating new YouTube playlist</h3>
+        <Spinner animation="border" />
+      </>
     );
   } else {
     header = <h3>Your new YouTube playlist has been created!</h3>;
   }
 
-  return(
+  return (
     <Container className="text-center p-5">
       <Row className="align-items-center">
         <Col>
@@ -125,5 +142,5 @@ export default function CreateYoutubePlaylist() {
         </Col>
       </Row>
     </Container>
-  )
+  );
 }

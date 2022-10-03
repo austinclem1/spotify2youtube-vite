@@ -19,12 +19,13 @@ import {
   useFetch,
 } from "../helpers/spotify-helpers";
 
-
 export default function SpotifyPlaylists() {
   const playlistFetchParams = new URLSearchParams({
     fields: "items(id,name,images,tracks(total,href))",
   });
-  const playlistFetchResults = useFetch(`${constants.spotifyApiURL}/me/playlists?${playlistFetchParams.toString()}`);
+  const playlistFetchResults = useFetch(
+    `${constants.spotifyApiURL}/me/playlists?${playlistFetchParams.toString()}`
+  );
 
   const [selectedPlaylistId, setSelectedPlaylistId] = useState(null);
 
@@ -32,11 +33,15 @@ export default function SpotifyPlaylists() {
   if (playlistFetchResults.isLoading) {
     playlistCards = <Spinner animation="border" />;
   } else if (playlistFetchResults.error) {
-    playlistCards = <div>Failed to fetch playlists, error: {playlistFetchResults.error.message}</div>;
+    playlistCards = (
+      <div>
+        Failed to fetch playlists, error: {playlistFetchResults.error.message}
+      </div>
+    );
   } else {
     playlistCards = playlistFetchResults.data.items
-      .filter(playlist => playlist.tracks.total > 0)
-      .map(playlist => (
+      .filter((playlist) => playlist.tracks.total > 0)
+      .map((playlist) => (
         <PlaylistCard
           key={playlist.id}
           name={playlist.name}
@@ -49,13 +54,10 @@ export default function SpotifyPlaylists() {
       ));
   }
 
-
   return (
     <Container className="text-center p-5">
       <h1>Choose a Playlist to Convert</h1>
-      <Row className="m-xs-1 m-sm-2 m-md-3 m-lg-4 m-xl-5">
-        {playlistCards}
-      </Row>
+      <Row className="m-xs-1 m-sm-2 m-md-3 m-lg-4 m-xl-5">{playlistCards}</Row>
       <Navbar bg="dark" fixed="bottom" className="w-100 justify-content-center">
         <Link to={`/youtube-results?playlistID=${selectedPlaylistId}`}>
           <Button disabled={selectedPlaylistId === null}>Convert</Button>

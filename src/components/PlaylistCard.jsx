@@ -41,8 +41,8 @@ export default function PlaylistCard({
   let headerStyle;
   if (isSelected) {
     headerStyle = {
-      fontWeight: 'bold',
-      backgroundColor: 'LightSkyBlue',
+      fontWeight: "bold",
+      backgroundColor: "LightSkyBlue",
     };
   }
 
@@ -70,9 +70,7 @@ export default function PlaylistCard({
               <Image src={imageURL} thumbnail />
             </Col>
             <Col xs={12} className="align-self-center">
-              <Card.Text>
-                {`${totalTracks} tracks`}
-              </Card.Text>
+              <Card.Text>{`${totalTracks} tracks`}</Card.Text>
               <Col style={{ maxHeight: "500px", overflowY: "auto" }}>
                 {isSelected && (
                   <TracksTable

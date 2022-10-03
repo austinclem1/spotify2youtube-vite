@@ -4,27 +4,31 @@ import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Table from "react-bootstrap/Table";
 
-import { fetchWithCredentialsRetryOnce, getSomePlaylistTracks, useFetch } from "../helpers/spotify-helpers";
+import {
+  fetchWithCredentialsRetryOnce,
+  getSomePlaylistTracks,
+  useFetch,
+} from "../helpers/spotify-helpers";
 
 import constants from "../constants";
 
 function reducer(state, action) {
-  switch(action.type) {
-    case 'add-tracks':
+  switch (action.type) {
+    case "add-tracks":
       return {
-        status: 'loaded',
+        status: "loaded",
         tracks: state.tracks.concat(action.newTracks),
         nextURL: action.newNextURL,
         errorMessage: null,
-      }
-    case 'set-is-loading':
+      };
+    case "set-is-loading":
       return {
         ...state,
-        status: 'loading',
-      }
-    case 'set-error':
+        status: "loading",
+      };
+    case "set-error":
       return {
-        status: 'error',
+        status: "error",
         tracks: [],
         nextURL: null,
         errorMessage: action.errorMessage,
@@ -35,7 +39,7 @@ function reducer(state, action) {
 export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
   const reducedTrackCount = 3;
   const [state, dispatch] = useReducer(reducer, {
-    status: 'loading',
+    status: "loading",
     tracks: [],
     nextURL: null,
     errorMessage: null,
@@ -47,13 +51,13 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
       market: "from_token",
       fields: "items(track(name,artists(name))),next",
     });
-    if (state.status === 'loading') {
+    if (state.status === "loading") {
       fetchWithCredentialsRetryOnce(`${tracksURL}?${params.toString()}`)
-        .then(res => res.json())
-        .then(data => {
-          const newTracks = data.items.map(item => ({
+        .then((res) => res.json())
+        .then((data) => {
+          const newTracks = data.items.map((item) => ({
             name: item.track.name,
-            artists: item.track.artists.map(artist => artist.name).join(", "),
+            artists: item.track.artists.map((artist) => artist.name).join(", "),
           }));
           const newNextURL = data.next;
           dispatch({
@@ -62,7 +66,9 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
             newNextURL,
           });
         })
-        .catch(err => dispatch({type: 'set-error', errorMessage: err.message}));
+        .catch((err) =>
+          dispatch({ type: "set-error", errorMessage: err.message })
+        );
     }
   }, []);
 
@@ -85,12 +91,14 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
   //   console.log(tableRows);
   // }
   switch (state.status) {
-    case 'error':
-      tableRows = <div>{`Failed to fetch tracks, error: ${state.errorMessage}`}</div>;
+    case "error":
+      tableRows = (
+        <div>{`Failed to fetch tracks, error: ${state.errorMessage}`}</div>
+      );
       break;
-    case 'loaded':
-    case 'loading':
-      tableRows = state.tracks.map(track => (
+    case "loaded":
+    case "loading":
+      tableRows = state.tracks.map((track) => (
         <tr key={`${track.name},${track.artists}`}>
           <td>{track.name}</td>
           <td>{track.artists}</td>
@@ -100,12 +108,12 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
   }
 
   let loadMoreButton;
-  if (state.status !== 'error') {
+  if (state.status !== "error") {
     loadMoreButton = (
       <Button
         variant="success"
         onClick={loadMoreTracks}
-        disabled={state.status === 'loading'}
+        disabled={state.status === "loading"}
       >
         Load More
       </Button>
@@ -113,13 +121,13 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
   }
 
   async function loadMoreTracks() {
-    dispatch({type: 'set-is-loading'});
+    dispatch({ type: "set-is-loading" });
     fetchWithCredentialsRetryOnce(state.nextURL)
-      .then(res => res.json())
-      .then(data => {
-        const newTracks = data.items.map(item => ({
+      .then((res) => res.json())
+      .then((data) => {
+        const newTracks = data.items.map((item) => ({
           name: item.track.name,
-          artists: item.track.artists.map(artist => artist.name).join(", "),
+          artists: item.track.artists.map((artist) => artist.name).join(", "),
         }));
         const newNextURL = data.next;
         dispatch({
@@ -128,7 +136,9 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
           newNextURL,
         });
       })
-      .catch(err => dispatch({type: 'set-error', errorMessage: err.message}));
+      .catch((err) =>
+        dispatch({ type: "set-error", errorMessage: err.message })
+      );
   }
 
   return (
@@ -149,9 +159,7 @@ export default function TracksTable({ tracksURL, playlistLength, isSelected }) {
           )}
         </tbody>
       </Table>
-      {state.nextURL !== null && 
-        loadMoreButton
-      }
+      {state.nextURL !== null && loadMoreButton}
     </>
   );
 }

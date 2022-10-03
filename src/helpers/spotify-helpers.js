@@ -395,7 +395,7 @@ export async function checkSpotifyLoginStatus() {
 class InvalidCredentialsError extends Error {
   constructor(msg) {
     super(msg);
-    this.name = 'InvalidCredentialsError';
+    this.name = "InvalidCredentialsError";
   }
 }
 
@@ -410,22 +410,23 @@ export async function fetchWithCredentialsRetryOnce(fetchURL) {
     const spotifyFetchOptions = {
       method: "GET",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     };
 
-    const result = await fetch(fetchURL, spotifyFetchOptions)
-      .then(res => {
-        if (res.ok) {
-          return res;
-        } else if (res.status === 401) {
-          throw new InvalidCredentialsError(`Credentials rejected when attempting to fetch ${fetchURL}`);
-        } else {
-          throw new Error(`Failed to fetch ${fetchURL}`);
-        }
-      })
+    const result = await fetch(fetchURL, spotifyFetchOptions).then((res) => {
+      if (res.ok) {
+        return res;
+      } else if (res.status === 401) {
+        throw new InvalidCredentialsError(
+          `Credentials rejected when attempting to fetch ${fetchURL}`
+        );
+      } else {
+        throw new Error(`Failed to fetch ${fetchURL}`);
+      }
+    });
     if (result) {
       return result;
     }
@@ -438,30 +439,32 @@ export async function fetchWithCredentialsRetryOnce(fetchURL) {
   // If we make it here, we specifically got an invalid credentials response so we will
   // try getting new tokens with the existing refresh token, then try the fetch one
   // more time.
-  const [newAccessToken, newRefreshToken] = await getNewSpotifyTokensWithRefreshToken(refreshToken);
-  window.localStorage.setItem('spotifyAccessToken', newAccessToken);
-  window.localStorage.setItem('spotifyRefreshToken', newRefreshToken);
+  const [newAccessToken, newRefreshToken] =
+    await getNewSpotifyTokensWithRefreshToken(refreshToken);
+  window.localStorage.setItem("spotifyAccessToken", newAccessToken);
+  window.localStorage.setItem("spotifyRefreshToken", newRefreshToken);
 
   try {
     const spotifyFetchOptions = {
       method: "GET",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${newAccessToken}`,
+        Authorization: `Bearer ${newAccessToken}`,
       },
     };
 
-    const result = await fetch(fetchURL, spotifyFetchOptions)
-      .then(res => {
-        if (res.ok) {
-          return res;
-        } else if (res.status === 401) {
-          throw new InvalidCredentialsError(`Credentials rejected when attempting to fetch ${fetchURL}`);
-        } else {
-          throw new Error(`Failed to fetch ${fetchURL}`);
-        }
-      })
+    const result = await fetch(fetchURL, spotifyFetchOptions).then((res) => {
+      if (res.ok) {
+        return res;
+      } else if (res.status === 401) {
+        throw new InvalidCredentialsError(
+          `Credentials rejected when attempting to fetch ${fetchURL}`
+        );
+      } else {
+        throw new Error(`Failed to fetch ${fetchURL}`);
+      }
+    });
     if (result) {
       return result;
     }
@@ -473,7 +476,7 @@ export async function fetchWithCredentialsRetryOnce(fetchURL) {
 class FailedToRefreshTokensError extends Error {
   constructor(msg) {
     super(msg);
-    this.name = 'FailedToRefreshTokensError';
+    this.name = "FailedToRefreshTokensError";
   }
 }
 
@@ -493,14 +496,15 @@ async function getNewSpotifyTokensWithRefreshToken(refreshToken) {
   };
 
   try {
-    const data = await fetch(constants.spotifyTokenURL, fetchOptions)
-      .then(res => {
+    const data = await fetch(constants.spotifyTokenURL, fetchOptions).then(
+      (res) => {
         if (res.ok) {
           return res.json();
         } else {
           throw new FailedToRefreshTokensError();
         }
-      });
+      }
+    );
 
     const accessToken = data.access_token;
     // const expiresIn = data.expires_in;
@@ -520,7 +524,7 @@ export function useFetch(url) {
   useEffect(() => {
     if (isLoading) {
       fetchWithCredentialsRetryOnce(url)
-        .then(res => res.json())
+        .then((res) => res.json())
         .then(setData)
         .catch(setError)
         .finally(() => setIsLoading(false));

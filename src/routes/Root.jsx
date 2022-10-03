@@ -9,7 +9,9 @@ import constants from "../constants";
 
 export async function loader() {
   try {
-    const userProfile = await fetchWithCredentialsRetryOnce(`${constants.spotifyApiURL}/me`);
+    const userProfile = await fetchWithCredentialsRetryOnce(
+      `${constants.spotifyApiURL}/me`
+    );
     return redirect("/spotify-playlists");
   } catch (err) {
     return redirect("/spotify-login");
